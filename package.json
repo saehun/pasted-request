@@ -18,6 +18,9 @@
     "name": "Karl Saehun Chung",
     "email": "nycom13@gmail.com"
   },
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@types/jest": "^26.0.20",
     "@types/node": "^14.14.31",
