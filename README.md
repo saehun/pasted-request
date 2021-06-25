@@ -30,6 +30,7 @@ reqbin.body(); // 'Id=78912&Customer=Jason%20Sweet'
 reqbin.body({Id: 1000}); // 'Id=1000&Customer=Jason%20Sweet'
 
 
+// same as above
 const reqbin2 = request.http`
 PATCH /echo/post/json?foo=true HTTP/1.1
 Host: reqbin.com
@@ -43,7 +44,11 @@ Content-Length: 81
 }
 `
 
-// same as above
+const { method, url, headers, body } = reqbin2;
+
+axios[method](url(), body(), { headers: headers() })
+  .then(response => response.data)
+  .then(console.log)
 
 ```
 
