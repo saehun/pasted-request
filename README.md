@@ -1,5 +1,7 @@
 # Pasted Request
 ![license](https://img.shields.io/npm/l/pasted-request)
+![version](https://img.shields.io/npm/v/pasted-request)
+
 Generate a http request config from a curl command string or a raw http request string.
 
 ## Installation

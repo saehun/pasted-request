@@ -32,7 +32,6 @@
   },
   "dependencies": {
     "query-string": "^7.0.1",
-    "shellwords": "^0.1.1",
-    "yargs": "^17.0.1"
+    "shellwords": "^0.1.1"
   }
 }
