@@ -5,7 +5,7 @@ Generate a http request config from a curl command string or a raw http request 
 ```sh
 yarn add pasted-request
 npm i pasted-reqeust
-``
+```
 
 ## Usage
 ```typescript
