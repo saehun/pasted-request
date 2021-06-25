@@ -38,7 +38,7 @@ curl 'https://apius.reqbin.com/api/v1/requests' \
   -H 'sec-fetch-dest: empty' \
   -H 'referer: https://reqbin.com/' \
   -H 'accept-language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7' \
-  --data-raw '{"id":"","name":"","errors":"","json":"{\"method\":\"POST\",\"url\":\"https://reqbin.com/echo/post/json\",\"apiNode\":\"US\",\"contentType\":\"JSON\",\"content\":\"{\\n  \\\"Id\\\": 78912,\\n  \\\"Customer\\\": \\\"Jason Sweet\\\",\\n  \\\"Quantity\\\": 1,\\n  \\\"Price\\\": 18.00\\n}\",\"headers\":\"Accept: application/json\",\"errors\":\"\",\"curlCmd\":\"\",\"auth\":{\"auth\":\"noAuth\",\"bearerToken\":\"\",\"basicUsername\":\"{username}\",\"basicPassword\":\"\",\"customHeader\":\"\",\"encrypted\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyYW5kb20iOiJna3lobHNxeDkwcWkiLCJkYXRlIjoiMDU6MDM6MTUgTWF5IDIwIDIwMjEiLCJiZWFyZXJUb2tlbiI6IiIsImJhc2ljVXNlcm5hbWUiOiJrcEBwa2EubmFtZSIsImJhc2ljUGFzc3dvcmQiOiIiLCJjdXN0b21IZWFkZXIiOiIifQ.VOo39kySH2M7DWkfHB9i5KRFzRNkoXv8jQ9VXtk7jrg\"},\"compare\":false,\"idnUrl\":\"https://reqbin.com/echo/post/json\"}","deviceId":"a00f3265-8f9d-439c-8f17-04c2e9462b36R","sessionId":1624563483955}' \
+  --data-raw '{"id":"","name":"","errors":""}' \
   --compressed
  `;
 
@@ -46,6 +46,7 @@ curl 'https://apius.reqbin.com/api/v1/requests' \
     expect(headers()).toEqual({
       authority: 'apius.reqbin.com',
       pragma: 'no-cache',
+      'accept-encoding': 'deflate, gzip',
       'cache-control': 'no-cache, no-store, must-revalidate',
       'sec-ch-ua': '" Not;A Brand";v="99", "Google Chrome";v="91", "Chromium";v="91"',
       'sec-ch-ua-mobile': '?0',
@@ -61,9 +62,7 @@ curl 'https://apius.reqbin.com/api/v1/requests' \
       referer: 'https://reqbin.com/',
       'accept-language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
     });
-    expect(body()).toEqual(
-      `{"id":"","name":"","errors":"","json":"{"method":"POST","url":"https://reqbin.com/echo/post/json","apiNode":"US","contentType":"JSON","content":"{\\n \\"Id\\": 78912,\\n \\"Customer\\": \\"Jason Sweet\\",\\n \\"Quantity\\": 1,\\n \\"Price\\": 18.00\\n}","headers":"Accept: application/json","errors":"","curlCmd":"","auth":{"auth":"noAuth","bearerToken":"","basicUsername":"{username}","basicPassword":"","customHeader":"","encrypted":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyYW5kb20iOiJna3lobHNxeDkwcWkiLCJkYXRlIjoiMDU6MDM6MTUgTWF5IDIwIDIwMjEiLCJiZWFyZXJUb2tlbiI6IiIsImJhc2ljVXNlcm5hbWUiOiJrcEBwa2EubmFtZSIsImJhc2ljUGFzc3dvcmQiOiIiLCJjdXN0b21IZWFkZXIiOiIifQ.VOo39kySH2M7DWkfHB9i5KRFzRNkoXv8jQ9VXtk7jrg"},"compare":false,"idnUrl":"https://reqbin.com/echo/post/json"}","deviceId":"a00f3265-8f9d-439c-8f17-04c2e9462b36R","sessionId":1624563483955}`
-    );
+    expect(body()).toEqual(`{"id":"","name":"","errors":""}`);
     expect(url()).toEqual('https://apius.reqbin.com/api/v1/requests');
   });
 

@@ -1,142 +1,121 @@
-import { ParseRequest } from './types';
-import * as yargs from 'yargs';
-import { assertMethod } from './utils';
+import { Method, ParseRequest } from './types';
+const words = require('shellwords');
 
 /**
- * from https://github.com/NickCarneiro/curlconverter/blob/master/util.js
+ * Attempt to parse the given curl string.
  */
-export const parseCurlCommand: ParseRequest = raw => {
-  // Remove newlines (and from continuations)
-  raw = raw.trim();
-  raw = raw.replace(/\\\r|\\\n/g, '');
+export const parseCurlCommand: ParseRequest = (raw: string) => {
+  const args = rewrite(words.split(raw));
+  const out: {
+    method: Method;
+    headers: Record<string, string>;
+    body: string;
+    url: string;
+  } = { method: 'get', headers: {}, url: '', body: '' };
+  let state = '';
 
-  // Remove extra whitespace
-  raw = raw.replace(/\s+/g, ' ');
+  args.forEach(function (arg) {
+    switch (true) {
+      case isURL(arg):
+        out.url = arg;
+        break;
 
-  // yargs parses -XPOST as separate arguments. just prescreen for it.
-  raw = raw.replace(/ -XPOST/, ' -X POST');
-  raw = raw.replace(/ -XGET/, ' -X GET');
-  raw = raw.replace(/ -XPUT/, ' -X PUT');
-  raw = raw.replace(/ -XPATCH/, ' -X PATCH');
-  raw = raw.replace(/ -XDELETE/, ' -X DELETE');
-  // Safari adds `-Xnull` if is unable to determine the request type, it can be ignored
-  raw = raw.replace(/ -Xnull/, ' ');
-  raw = raw.trim();
+      case arg == '-A' || arg == '--user-agent':
+        state = 'user-agent';
+        break;
 
-  // Parse with some understanding of the meanings of flags.  In particular,
-  // boolean flags can be trouble if the URL to fetch follows immediately
-  // after, since it will be taken as an argument to the flag rather than
-  // interpreted as a positional argument.  Someone should add all the flags
-  // likely to cause trouble here.
-  const parsedArguments: any = yargs
-    .boolean(['I', 'head', 'compressed', 'L', 'k', 'silent', 's'])
-    .alias('H', 'header')
-    .alias('A', 'user-agent')
-    .parse(raw);
+      case arg == '-H' || arg == '--header':
+        state = 'header';
+        break;
 
-  let url = parsedArguments._[1];
+      case arg == '-d' || arg == '--data' || arg == '--data-ascii' || arg == '--data-raw':
+        state = 'data';
+        break;
 
-  // if url argument wasn't where we expected it, try to find it in the other arguments
-  if (!url) {
-    for (const argName in parsedArguments) {
-      if (typeof parsedArguments[argName] === 'string') {
-        if (parsedArguments[argName].indexOf('http') === 0 || parsedArguments[argName].indexOf('www.') === 0) {
-          url = parsedArguments[argName];
+      case arg == '-u' || arg == '--user':
+        state = 'user';
+        break;
+
+      case arg == '-I' || arg == '--head':
+        out.method = 'head';
+        break;
+
+      case arg == '-X' || arg == '--request':
+        state = 'method';
+        break;
+
+      case arg == '-b' || arg == '--cookie':
+        state = 'cookie';
+        break;
+
+      case arg == '--compressed':
+        out.headers['accept-encoding'] = out.headers['accept-encoding'] || 'deflate, gzip';
+        break;
+
+      case !!arg:
+        switch (state) {
+          case 'header': {
+            const field = parseField(arg);
+            out.headers[field[0].toLowerCase()] = field[1];
+            state = '';
+            break;
+          }
+          case 'user-agent':
+            out.headers['user-agent'] = arg;
+            state = '';
+            break;
+          case 'data':
+            if (out.method == 'get' || out.method == 'head') out.method = 'post';
+            out.headers['content-type'] = out.headers['content-type'] || 'application/x-www-form-urlencoded';
+            out.body = arg;
+            state = '';
+            break;
+          case 'user':
+            out.headers['authorization'] = 'Basic ' + btoa(arg);
+            state = '';
+            break;
+          case 'method':
+            out.method = arg.toLowerCase() as Method;
+            state = '';
+            break;
+          case 'cookie':
+            out.headers['cookie'] = arg;
+            state = '';
+            break;
         }
-      }
+        break;
     }
-  }
+  });
 
-  const headers: Record<string, string> = {};
-
-  if (parsedArguments.header) {
-    if (!Array.isArray(parsedArguments.header)) {
-      parsedArguments.header = [parsedArguments.header];
-    }
-
-    parsedArguments.header.forEach((header: string) => {
-      const parsed = /^(.+?):(.+)$/.exec(header);
-      if (parsed === null) {
-        return headers;
-      }
-      const [, key, value] = parsed;
-      headers[key.toLowerCase()] = value.trim();
-    });
-  }
-
-  if (parsedArguments['user-agent']) {
-    headers['user-agent'] = parsedArguments['user-agent'];
-  }
-
-  let method;
-  if (parsedArguments.X === 'POST') {
-    method = 'post';
-  } else if (parsedArguments.X === 'PUT' || parsedArguments.T) {
-    method = 'put';
-  } else if (parsedArguments.X === 'PATCH') {
-    method = 'patch';
-  } else if (parsedArguments.X === 'DELETE') {
-    method = 'delete';
-  } else if (
-    (parsedArguments.d ||
-      parsedArguments.data ||
-      parsedArguments['data-ascii'] ||
-      parsedArguments['data-binary'] ||
-      parsedArguments['data-raw'] ||
-      parsedArguments.F ||
-      parsedArguments.form) &&
-    !(parsedArguments.G || parsedArguments.get)
-  ) {
-    method = 'post';
-  } else {
-    method = 'get';
-  }
-
-  // if GET request with data, convert data to query string
-  // NB: the -G flag does not change the http verb. It just moves the data into the url.
-  if (parsedArguments.G || parsedArguments.get) {
-    const option = 'd' in parsedArguments ? 'd' : 'data' in parsedArguments ? 'data' : null;
-    if (option) {
-      let urlQueryString = '';
-
-      if (url.indexOf('?') < 0) {
-        url += '?';
-      } else {
-        urlQueryString += '&';
-      }
-
-      if (typeof parsedArguments[option] === 'object') {
-        urlQueryString += parsedArguments[option].join('&');
-      } else {
-        urlQueryString += parsedArguments[option];
-      }
-      url += urlQueryString;
-      delete parsedArguments[option];
-    }
-  }
-
-  url = url.replace(/^'/, '').replace(/'$/, '');
-
-  let body = '';
-
-  if (parsedArguments.data) {
-    body = parsedArguments.data;
-  } else if (parsedArguments['data-binary']) {
-    body = parsedArguments['data-binary'];
-  } else if (parsedArguments.d) {
-    body = parsedArguments.d;
-  } else if (parsedArguments['data-ascii']) {
-    body = parsedArguments['data-ascii'];
-  } else if (parsedArguments['data-raw']) {
-    body = parsedArguments['data-raw'];
-  }
-
-  assertMethod(method);
-
-  return {
-    method,
-    url,
-    headers,
-    body,
-  };
+  return out;
 };
+
+/**
+ * Rewrite args for special cases such as -XPUT.
+ */
+function rewrite(args: string[]) {
+  return args.reduce((acc: string[], n: string) => {
+    if (0 == n.indexOf('-X')) {
+      acc.push('-X');
+      acc.push(n.slice(2));
+    } else {
+      acc.push(n);
+    }
+
+    return acc;
+  }, []);
+}
+
+/**
+ * Parse header field.
+ */
+function parseField(s: string) {
+  return s.split(/: (.+)/);
+}
+
+/**
+ * Check if `s` looks like a url.
+ */
+function isURL(s: string) {
+  return /^https?:\/\//.test(s);
+}
