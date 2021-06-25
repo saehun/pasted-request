@@ -3,6 +3,7 @@ const words = require('shellwords');
 
 /**
  * Attempt to parse the given curl string.
+ * From https://github.com/tj/parse-curl.js by TJ Holowaychuk. applying some changes
  */
 export const parseCurlCommand: ParseRequest = (raw: string) => {
   const args = rewrite(words.split(raw));
