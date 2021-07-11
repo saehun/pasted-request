@@ -41,7 +41,7 @@ export function requestWith(parse: ParseRequest) {
     function headers(args?: Headers): Record<string, string> {
       if (args !== undefined) {
         for (const key in args) {
-          parsed.headers[key.toLowerCase()] = args[key];
+          parsed.headers[key] = args[key];
         }
       }
 

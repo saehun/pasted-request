@@ -40,6 +40,6 @@ function parseHeaders(raw: string): Record<string, string> {
       raiseParseError(`'${line}' is not a valid header`);
     }
     const [, key, value] = parsed;
-    return { ...headers, [key.toLowerCase()]: value.trim() };
+    return { ...headers, [key]: value.trim() };
   }, {});
 }

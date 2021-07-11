@@ -50,37 +50,37 @@ export const parseCurlCommand: ParseRequest = (raw: string) => {
         break;
 
       case arg == '--compressed':
-        out.headers['accept-encoding'] = out.headers['accept-encoding'] || 'deflate, gzip';
+        out.headers['Accept-Encoding'] = out.headers['Accept-Encoding'] || 'deflate, gzip';
         break;
 
       case !!arg:
         switch (state) {
           case 'header': {
             const field = parseField(arg);
-            out.headers[field[0].toLowerCase()] = field[1];
+            out.headers[field[0]] = field[1];
             state = '';
             break;
           }
-          case 'user-agent':
-            out.headers['user-agent'] = arg;
+          case 'User-Agent':
+            out.headers['User-Agent'] = arg;
             state = '';
             break;
           case 'data':
             if (out.method == 'get' || out.method == 'head') out.method = 'post';
-            out.headers['content-type'] = out.headers['content-type'] || 'application/x-www-form-urlencoded';
+            out.headers['Content-Type'] = out.headers['Content-Type'] || 'application/x-www-form-urlencoded';
             out.body = arg;
             state = '';
             break;
           case 'user':
-            out.headers['authorization'] = 'Basic ' + btoa(arg);
+            out.headers['Authorization'] = 'Basic ' + btoa(arg);
             state = '';
             break;
           case 'method':
             out.method = arg.toLowerCase() as Method;
             state = '';
             break;
-          case 'cookie':
-            out.headers['cookie'] = arg;
+          case 'Cookie':
+            out.headers['Cookie'] = arg;
             state = '';
             break;
         }
