@@ -20,7 +20,7 @@ function parseMethod(raw: string): Method {
 function parseUrl(raw: string, https: boolean): string {
   let url = raw.split(' ')[1];
   if (url.startsWith('/')) {
-    url = (https ? 'https://' : 'http://') + parseHeaders(raw).host + url;
+    url = (https ? 'https://' : 'http://') + parseHeaders(raw).Host + url;
   }
   return url;
 }

@@ -1,6 +1,7 @@
 import { ParseRequest } from './types';
 import { assertString } from './utils';
 import * as queryString from 'query-string';
+import { mergeDeepRight } from './merge';
 
 export function requestWith(parse: ParseRequest) {
   return function <
@@ -56,10 +57,7 @@ export function requestWith(parse: ParseRequest) {
       try {
         // content-type: application/json
         const bodyObj = JSON.parse(parsed.body);
-        for (const key in args) {
-          bodyObj[key] = args[key];
-        }
-        return JSON.stringify(bodyObj);
+        return JSON.stringify(mergeDeepRight(bodyObj, args));
       } catch {
         try {
           // content-type: application/x-www-form-urlencoded

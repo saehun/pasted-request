@@ -13,8 +13,8 @@ curl -X POST https://reqbin.com/echo/post/json?foo=true \
     expect(url()).toEqual('https://reqbin.com/echo/post/json?foo=true');
     expect(url({ foo: false, bar: '1234' })).toEqual('https://reqbin.com/echo/post/json?foo=false&bar=1234');
     expect(headers()).toEqual({
-      accept: 'application/json',
-      'content-type': 'application/x-www-form-urlencoded',
+      Accept: 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
     });
     expect(body()).toEqual('Id=78912&Customer=Jason%20Sweet');
     expect(body({ Id: '0000' })).toEqual('Customer=Jason%20Sweet&Id=0000');
@@ -29,7 +29,7 @@ curl 'https://apius.reqbin.com/api/v1/requests' \
   -H 'sec-ch-ua: " Not;A Brand";v="99", "Google Chrome";v="91", "Chromium";v="91"' \
   -H 'sec-ch-ua-mobile: ?0' \
   -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36' \
-  -H 'content-type: application/json' \
+  -H 'Content-Type: application/json' \
   -H 'accept: */*' \
   -H 'expires: 0' \
   -H 'origin: https://reqbin.com' \
@@ -46,13 +46,13 @@ curl 'https://apius.reqbin.com/api/v1/requests' \
     expect(headers()).toEqual({
       authority: 'apius.reqbin.com',
       pragma: 'no-cache',
-      'accept-encoding': 'deflate, gzip',
+      'Accept-Encoding': 'deflate, gzip',
       'cache-control': 'no-cache, no-store, must-revalidate',
       'sec-ch-ua': '" Not;A Brand";v="99", "Google Chrome";v="91", "Chromium";v="91"',
       'sec-ch-ua-mobile': '?0',
       'user-agent':
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36',
-      'content-type': 'application/json',
+      'Content-Type': 'application/json',
       accept: '*/*',
       expires: '0',
       origin: 'https://reqbin.com',
@@ -86,16 +86,16 @@ Content-Length: 81
     expect(url()).toEqual('https://reqbin.com/echo/post/json?foo=true');
     expect(url({ foo: 'bar' })).toEqual('https://reqbin.com/echo/post/json?foo=bar');
     expect(headers()).toEqual({
-      host: 'reqbin.com',
-      accept: 'application/json',
-      'content-type': 'application/json',
-      'content-length': '81',
+      Host: 'reqbin.com',
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Content-Length': '81',
     });
 
-    expect(headers({ host: undefined })).toEqual({
-      accept: 'application/json',
-      'content-type': 'application/json',
-      'content-length': '81',
+    expect(headers({ Host: undefined })).toEqual({
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Content-Length': '81',
     });
     expect(body({})).toEqual(JSON.stringify({ Id: 78912, Customer: 'Jason Sweet', Quantity: 1, Price: 18.0 }));
     expect(body({ Customer: 'Karl Saehun Chung' })).toEqual(
