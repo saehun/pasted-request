@@ -57,7 +57,7 @@ export function requestWith(parse: ParseRequest) {
       try {
         // content-type: application/json
         const bodyObj = JSON.parse(parsed.body);
-        return JSON.stringify(mergeDeepRight(bodyObj, args));
+        return mergeDeepRight(bodyObj, args);
       } catch {
         try {
           // content-type: application/x-www-form-urlencoded

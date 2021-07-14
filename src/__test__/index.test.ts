@@ -97,10 +97,13 @@ Content-Length: 81
       'Content-Type': 'application/json',
       'Content-Length': '81',
     });
-    expect(body({})).toEqual(JSON.stringify({ Id: 78912, Customer: 'Jason Sweet', Quantity: 1, Price: 18.0 }));
-    expect(body({ Customer: 'Karl Saehun Chung' })).toEqual(
-      JSON.stringify({ Id: 78912, Customer: 'Karl Saehun Chung', Quantity: 1, Price: 18.0 })
-    );
+    expect(body({})).toEqual({ Id: 78912, Customer: 'Jason Sweet', Quantity: 1, Price: 18.0 });
+    expect(body({ Customer: 'Karl Saehun Chung' })).toEqual({
+      Id: 78912,
+      Customer: 'Karl Saehun Chung',
+      Quantity: 1,
+      Price: 18.0,
+    });
     expect(
       parseHttpReqeust(
         `
